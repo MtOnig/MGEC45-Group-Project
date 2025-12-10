@@ -27,6 +27,7 @@ My individual contributions focused specifically on the statistical analysis of 
 - engineering the full multi-metric scoring system (defense, progression, creativity, on-ball security), including z-scores and percentile transformation
 - developing the similarity-matching method used to identify Caicedo’s closest statistical comparators
 - preparing all export-ready datasets used for our interactive Power BI dashboard, including player lookup tables, percentile outputs, and cleaned scoring data
+- Developoing the PowerBI report and Dashboard.
 - resolving data-cleaning issues such as name mismatches, missing values, and per-90 normalization
 
 This README provides a high-level view of the project. A separate documentation file will be added to explain each component,models, scoring system, datasets, and dashboard in more detail.
