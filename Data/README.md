@@ -1,15 +1,19 @@
 # General Dataset Overview
 
 Unit of observation: Player overall season data
+
 Leagues: Top 5 European leagues (Premier League (England), Bundesliga (Germany), La liga (Spain), Serie A (Italy), Ligue 1 (France))
+
 Seasons covered: 2017–2024
+
 Position focus: Midfielders
+
 Intended use:
-* econometric modelling
-* residual-based ranking
-* multi-metric performance scoring
-* player comparison & benchmarking
-* Power BI visualization
+- econometric modelling
+- residual-based ranking
+- multi-metric performance scoring
+- player comparison & benchmarking
+- Power BI visualization
 
 This dataset serves as the single source of truth for all results reported in the written report and dashboard.
 
