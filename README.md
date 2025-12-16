@@ -22,7 +22,7 @@ As part of this MGEC45 group project, our team collectively developed the analyt
 - benchmarked Caicedo against three midfielders: Declan Rice, N’Golo Kanté, and Carlos Baleba
 - prepared findings for our written report and class presentation
 
-My individual contributions focused specifically on the statistical analysis of Caicedo and the creation of tools powering the final evaluation, including:
+My individual contributions focused specifically on the statistical analysis of Caicedo during the 2022-2023 season (the year before his move) and the creation of tools powering the final evaluation, including:
 - analyzing Caicedo’s performance across all models and extracting his detailed residual, percentile, and ranking results
 - engineering the full multi-metric scoring system (defense, progression, creativity, on-ball security), including z-scores and percentile transformation
 - developing the similarity-matching method used to identify Caicedo’s closest statistical comparators
