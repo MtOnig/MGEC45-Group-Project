@@ -76,14 +76,3 @@ Used for:
 This file isolates pure performance deviations from team and contextual effects.
 ---
 
-## Relationship Between Datasets
-
-The datasets follow this pipeline:
-
-MGEC45_Final_Clean_Data.csv
-        ↓
-Performance Regression Models
-        ↓
-Offensive_Defensive_Overall_residuals.csv
-        ↓
-Raw_Score_Data.csv        Transfer_Value_Expected_vs_Predicted.csv
