@@ -60,40 +60,30 @@ This file underpins:
 - visualizations comparing expected vs actual value
 
 ---
+### **4. Offensive_Defensive_Overall_residuals.csv**
+This dataset contains residual outputs from the three performance regressions:
 
-# Variable Groups
+**Includes:**
+- Defensive contribution residuals
+- Offensive contribution residuals
+- Overall impact (plus-minus) residuals
 
-The dataset contains several categories of variables:
+Used for:
+- residual-based rankings
+- leaderboard construction
+- benchmarking Caicedo against other midfielders
 
-1. Player Identifiers
-* Player
-* Team
-* Season
-* Nation
+This file isolates pure performance deviations from team and contextual effects.
+---
 
-Used for filtering, grouping, and benchmarking players (e.g., Caicedo vs Rice, Kanté, Baleba).
+## Relationship Between Datasets
 
-2. Playing Time & Context
-* Min, MP, Starts, 90s played
-* Team indicators (used for fixed effects)
+The datasets follow this pipeline:
 
-These variables are used for sample restrictions and regression controls.
-
-3. Performance Metrics (Model Inputs)
-Used as regressors across the defensive, offensive, and overall impact models, including:
-Defensive actions: Tkl+Int, Recov/90
-Ball progression: PrgC, Prg Passes
-Creativity: Key Passes, xG when on/90
-Possession & control: Passes Cmp%, Touches/90
-
-4. Regression Model Outputs
-
-*  Generated from the four core econometric models:
-* Defensive_Contribution_resid
-* Offensive_Contribution_resid
-* Overall_impact_resid
-* predicted_value (market value model)
-* Residual (actual − predicted market value)
-
-These variables are used for ranking players, identifying over/undervaluation, and producing residual distributions.
-
+MGEC45_Final_Clean_Data.csv
+        ↓
+Performance Regression Models
+        ↓
+Offensive_Defensive_Overall_residuals.csv
+        ↓
+Raw_Score_Data.csv        Transfer_Value_Expected_vs_Predicted.csv
