@@ -1,0 +1,176 @@
+---
+title: "MGEC45 Group Project"
+author: "Mohammed Tajudeen Onigbanjo"
+date: "2025-11-03"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(readr)
+library(car)
+library(dplyr)
+```
+
+
+```{r}
+Final_Data_with_transfer_values <- read_csv("Final Data with 2022 values.csv")
+
+Final_Data_with_transfer_values <- na.omit(Final_Data_with_transfer_values)
+
+Value_fit <- lm(`MarketValue in Millions` ~ Age + Min + `Recov/90` + `Tkl+Int`+ PrgC + `Key Passes`+ factor(Team), data = Final_Data_with_transfer_values)
+
+summary(Value_fit)
+```
+
+
+
+```{r}
+
+Final_Data_with_transfer_values$predicted_value <-  predict(Value_fit,Final_Data_with_transfer_values)
+Final_Data_with_transfer_values$Residual <- Final_Data_with_transfer_values$`MarketValue in Millions` - Final_Data_with_transfer_values$predicted_value
+
+Final_Data_scored <- Final_Data_with_transfer_values %>%
+  mutate(
+    Def_score_raw = `Tkl+Int` + `Recov/90`,
+    Prog_score_raw = PrgC + `Prg Passes`,
+    Onball_score_raw = `PassesCmp/90` + `Passes Cmp%`,
+    Creat_score_raw = `Key Passes` + `xG when on/90`,
+    `MarketValue in Millions`, `predicted_value`, Residual
+  )
+
+
+
+Final_Data_scored <- Final_Data_scored %>%
+  mutate(
+    Def_score    = as.numeric(scale(Def_score_raw)),
+    Prog_score   = as.numeric(scale(Prog_score_raw)),
+    Onball_score = as.numeric(scale(Onball_score_raw)),
+    Creat_score  = as.numeric(scale(Creat_score_raw))
+  )
+
+
+
+Final_Data_scored <- Final_Data_scored %>%
+  mutate(
+    Def_pct    = dplyr::percent_rank(Def_score),
+    Prog_pct   = dplyr::percent_rank(Prog_score),
+    Onball_pct = dplyr::percent_rank(Onball_score),
+    Creat_pct  = dplyr::percent_rank(Creat_score)
+  )
+
+
+combined_scores <- Final_Data_scored %>%
+  select(
+    Player, Team,
+    Def_score, Prog_score, Onball_score, Creat_score,
+    Def_pct, Prog_pct, Onball_pct, Creat_pct,`MarketValue in Millions`, `predicted_value`, Residual
+  ) %>%
+  arrange(desc(Def_score)) 
+
+combined_scores <- na.omit(combined_scores)
+
+caicedo_scores <- Final_Data_scored %>%
+  filter(Player == "Moises Caicedo") %>%
+  select(Def_score, Prog_score, Onball_score, Creat_score,Def_pct ,Prog_pct,Onball_pct,Creat_pct) %>%
+  unlist() %>%
+  as.numeric()
+
+cai <- as.numeric(caicedo_scores)
+
+players_better_or_equal <- combined_scores %>%
+  filter(
+    Def_score    >= cai[1],
+    Prog_score   >= cai[2],
+    Onball_score >= cai[3],
+    Creat_score  >= cai[4]
+  ) %>%
+  select(Player, Team,
+         Def_score, Prog_score, Onball_score, Creat_score,Def_pct ,Prog_pct,Onball_pct,Creat_pct,`MarketValue in Millions`, `predicted_value`, Residual) %>%
+  arrange(desc(Def_score))
+
+players_better_or_equal
+```
+
+
+
+```{r}
+players_3of4_better <- combined_scores %>%
+  rowwise() %>%
+  mutate(
+    num_better_or_equal = sum(
+      Def_score    >= cai[1],
+      Prog_score   >= cai[2],
+      Onball_score >= cai[3],
+      Creat_score  >= cai[4]
+    )
+  ) %>%
+  ungroup() %>%
+  filter(num_better_or_equal >= 3) %>%
+  select(Player, Team,
+         Def_score, Prog_score, Onball_score, Creat_score,Def_pct ,Prog_pct,Onball_pct,Creat_pct,`MarketValue in Millions`, `predicted_value`, Residual, num_better_or_equal) %>%
+  arrange(desc(num_better_or_equal), desc(Def_score))
+
+
+players_3of4_better
+```
+
+
+
+```{r}
+similarity_table <- combined_scores %>%
+  rowwise() %>%
+  mutate(
+    similarity_dist = sqrt(
+      (Def_score   - cai[1])^2 +
+      (Prog_score  - cai[2])^2 +
+      (Onball_score- cai[3])^2 +
+      (Creat_score - cai[4])^2
+    )
+  ) %>%
+  ungroup()
+
+closest_to_caicedo <- similarity_table %>%
+  filter(Player != "Moises Caicedo") %>%
+  arrange(similarity_dist) %>%
+  select(Player, Team,
+         Def_score, Prog_score, Onball_score, Creat_score,Def_pct ,Prog_pct,Onball_pct,Creat_pct,`MarketValue in Millions`, `predicted_value`, Residual,similarity_dist) %>%
+  head(15)
+
+
+closest_to_caicedo
+```
+
+
+```{r}
+
+
+cai_row <- Final_Data_scored %>%
+  filter(Player == "Moises Caicedo") %>%
+  select(Player, Team, `MarketValue in Millions`, Def_score, Prog_score, Onball_score, Creat_score,Def_pct ,Prog_pct,Onball_pct,Creat_pct, predicted_value, Residual)
+
+cai_row
+```
+
+```{r}
+all_players_df <- bind_rows(
+  closest_to_caicedo %>% select(Player, Team),
+  players_3of4_better %>% select(Player, Team),
+  players_better_or_equal %>% select(Player, Team)
+)
+
+combined_dataset <- bind_rows(
+  closest_to_caicedo %>% select(Player, Team, Def_score,Def_pct,Prog_score,Prog_pct,Creat_score,Creat_pct, Onball_score, Onball_pct,`MarketValue in Millions`, predicted_value, Residual),
+  players_3of4_better %>% select(Player, Team,Def_score,Def_pct,Prog_score,Prog_pct,Creat_score,Creat_pct, Onball_score, Onball_pct,`MarketValue in Millions`, predicted_value, Residual),
+  players_better_or_equal %>% select(Player, Team,Def_score,Def_pct,Prog_score,Prog_pct,Creat_score,Creat_pct, Onball_score, Onball_pct,`MarketValue in Millions`, predicted_value, Residual)
+)
+combined_dataset <- unique(combined_dataset)
+all_players_df <- unique(all_players_df)
+
+write_csv(cai_row, "Caicedo_Market_Data.csv")
+write_csv(all_players_df, "Player_names.csv")
+write_csv(combined_dataset, "combined_dataset.csv")
+write_csv(Final_Data_scored,"Raw_Score_Data.csv")
+write_csv(Final_Data_with_transfer_values, "Transfer_Value_Expected_vs_Pedicted.csv")
+```
+

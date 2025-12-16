@@ -1,0 +1,303 @@
+---
+title: "MGEC45 Group Project"
+author: "Mohammed Tajudeen Onigbanjo"
+date: "2025-11-03"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(readr)
+library(car)
+library(dplyr)
+```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+Final_Data <- read_csv("Final Data.csv")
+Final_Data <- na.omit(Final_Data)
+```
+
+```{r}
+Overall_impact_fit <- lm(`(+/-) / 90` ~  `Recov/90` + `Key Passes`  + PrgC  + `Touches/90` + `Passes Cmp%` + factor(`Team`), data = Final_Data)
+summary(Overall_impact_fit)
+```
+
+```{r}
+Final_Data$Overall_impact_resid <- resid(Overall_impact_fit)
+```
+
+
+```{r}
+Defensive_Contribution_fit <- lm(`xGA when on` ~  `Tkl+Int` + `Recov/90` + `Tkl%` + `Tkls in Def 3rd` + `Tkls in Mid 3rd` + `Tkls in Att 3rd` + factor(`Team`) , data = Final_Data)
+summary(Defensive_Contribution_fit)
+Final_Data$Defensive_Contribution_resid <- resid(Defensive_Contribution_fit)
+```
+
+```{r}
+Offensive_Contribution_fit <- lm(`xG when on/90` ~  `Key Passes` + `PassesCmp/90` + PrgC + `Passes Cmp%` + factor(`Team`), data = Final_Data)
+summary(Offensive_Contribution_fit)
+Final_Data$Offensive_Contribution_resid <- resid(Offensive_Contribution_fit)
+```
+
+\newpage
+
+```{r}
+over_ranks <- Final_Data %>%
+  filter(!is.na(Overall_impact_resid)) %>%
+  arrange(desc(Overall_impact_resid)) %>%
+  mutate(rank = row_number())
+
+top20_over <- over_ranks %>%
+  slice_head(n = 20)
+
+over_caicedo_row <- over_ranks %>%
+  filter(grepl("Moises Caicedo", Player, ignore.case = TRUE))
+
+top20_with_caicedo <- bind_rows(top20_over, over_caicedo_row) %>%
+  select(Player, Team, Overall_impact_resid, rank)
+
+print(top20_with_caicedo, n=Inf)
+```
+
+\newpage
+
+```{r}
+off_ranks <- Final_Data %>%
+  filter(!is.na(Offensive_Contribution_resid)) %>%
+  arrange(desc(Offensive_Contribution_resid)) %>%
+  mutate(rank = row_number())
+
+top20_off <- off_ranks %>%
+  slice_head(n = 20)
+
+off_caicedo_row <- off_ranks %>%
+  filter(grepl("Moises Caicedo", Player, ignore.case = TRUE))
+
+top20_with_caicedo <- bind_rows(top20_off, off_caicedo_row) %>%
+  select(Player, Team, Offensive_Contribution_resid, rank)
+
+print(top20_with_caicedo, n=Inf)
+```
+
+\newpage
+```{r}
+def_ranks <- Final_Data %>%
+  filter(!is.na(Defensive_Contribution_resid)) %>%
+  arrange(Defensive_Contribution_resid) %>%
+  mutate(rank = row_number())
+
+top20_def <- def_ranks %>%
+  slice_head(n = 20)
+
+def_caicedo_row <- def_ranks %>%
+  filter(grepl("Moises Caicedo", Player, ignore.case = TRUE))
+
+top20_with_caicedo <- bind_rows(top20_def, def_caicedo_row) %>%
+  select(Player, Team, Defensive_Contribution_resid, rank)
+
+print(top20_with_caicedo, n=Inf)
+```
+
+```{r}
+market_data <- read_csv("Final Data with 2022 values.csv")
+
+
+
+merged_data <- Final_Data %>%
+  mutate(join_name = iconv(Player, from = "", to = "ASCII//TRANSLIT")) %>%
+  left_join(
+    market_data %>%
+      mutate(join_name = iconv(Player, from = "", to = "ASCII//TRANSLIT")),
+    by = "join_name",
+    suffix = c("_resid", "_mv")
+  ) %>%
+  select(
+    Player = Player_resid,
+    Team   = Team_resid,
+    `MarketValue in Millions`,                    
+    Overall_impact_resid,
+    Defensive_Contribution_resid,
+    Offensive_Contribution_resid
+  )
+
+merged_data <- na.omit(merged_data)
+merged_data <- merged_data[!duplicated(merged_data), ]
+Market_value_fit <- lm(formula =  `MarketValue in Millions` ~ Overall_impact_resid+ Defensive_Contribution_resid + Offensive_Contribution_resid + factor(Team), data = merged_data)
+
+summary(Market_value_fit)
+merged_data$Market_Value_residuals <- resid(Market_value_fit)
+```
+
+\newpage
+
+```{r}
+market_ranks <- merged_data %>%
+  filter(!is.na(Market_Value_residuals)) %>%
+  arrange(Market_Value_residuals) %>%
+  mutate(rank = row_number())
+
+top20_market <- market_ranks %>%
+  slice_head(n = 20)
+
+market_caicedo_row <- market_ranks %>%
+  filter(grepl("Moises Caicedo", Player, ignore.case = TRUE))
+
+top20_with_caicedo <- bind_rows(top20_market, market_caicedo_row) %>%
+  select(Player, Team, Market_Value_residuals, rank)
+
+print(top20_with_caicedo, n=Inf)
+```
+
+```{r}
+library(ggplot2)
+
+def_caicedo_val <- def_caicedo_row %>%
+  pull(Defensive_Contribution_resid)  
+
+ggplot(merged_data, aes(x = Defensive_Contribution_resid)) +
+  geom_histogram(
+    bins = 30,
+    fill = "steelblue",
+    color = "white",
+    alpha = 0.75
+  ) +
+  # highlight Caicedo
+  geom_vline(
+    xintercept = def_caicedo_val,
+    color = "red",
+    linewidth = 1.2,
+    linetype = "dashed"
+  ) +
+  annotate(
+    "text",
+    x = def_caicedo_val,
+    y = Inf,
+    label = "Moises Caicedo",
+    vjust = -0.5,
+    color = "red",
+    fontface = "bold",
+    size = 4
+  ) +
+  labs(
+    title = "Histogram of Defensive Residuals",
+    x = "Residual (Millions)",
+    y = "Frequency"
+  ) +
+  theme_minimal(base_size = 13)
+
+```
+
+```{r}
+off_caicedo_val <- off_caicedo_row %>%
+  pull(Offensive_Contribution_resid)  
+
+ggplot(merged_data, aes(x = Offensive_Contribution_resid)) +
+  geom_histogram(
+    bins = 30,
+    fill = "steelblue",
+    color = "white",
+    alpha = 0.75
+  ) +
+  # highlight Caicedo
+  geom_vline(
+    xintercept = off_caicedo_val,
+    color = "red",
+    linewidth = 1.2,
+    linetype = "dashed"
+  ) +
+  annotate(
+    "text",
+    x = off_caicedo_val,
+    y = Inf,
+    label = "Moises Caicedo",
+    vjust = -0.5,
+    color = "red",
+    fontface = "bold",
+    size = 4
+  ) +
+  labs(
+    title = "Histogram of Offensive Residuals",
+    x = "Residual (Millions)",
+    y = "Frequency"
+  ) +
+  theme_minimal(base_size = 13)
+
+```
+
+
+```{r}
+over_caicedo_val <- over_caicedo_row %>%
+  pull(Overall_impact_resid)  
+
+ggplot(merged_data, aes(x = Overall_impact_resid)) +
+  geom_histogram(
+    bins = 30,
+    fill = "steelblue",
+    color = "white",
+    alpha = 0.75
+  ) +
+  # highlight Caicedo
+  geom_vline(
+    xintercept = over_caicedo_val,
+    color = "red",
+    linewidth = 1.2,
+    linetype = "dashed"
+  ) +
+  annotate(
+    "text",
+    x = over_caicedo_val,
+    y = Inf,
+    label = "Moises Caicedo",
+    vjust = -0.5,
+    color = "red",
+    fontface = "bold",
+    size = 4
+  ) +
+  labs(
+    title = "Histogram of Overall impact Residuals",
+    x = "Residual (Millions)",
+    y = "Frequency"
+  ) +
+  theme_minimal(base_size = 13)
+```
+
+```{r}
+market_caicedo_val <- market_caicedo_row %>%
+  pull(Market_Value_residuals)  
+
+ggplot(merged_data, aes(x = Market_Value_residuals)) +
+  geom_histogram(
+    bins = 30,
+    fill = "steelblue",
+    color = "white",
+    alpha = 0.75
+  ) +
+  # highlight Caicedo
+  geom_vline(
+    xintercept = market_caicedo_val,
+    color = "red",
+    linewidth = 1.2,
+    linetype = "dashed"
+  ) +
+  annotate(
+    "text",
+    x = market_caicedo_val,
+    y = Inf,
+    label = "Moises Caicedo",
+    vjust = -0.5,
+    color = "red",
+    fontface = "bold",
+    size = 4
+  ) +
+  labs(
+    title = "Histogram of Market Value Residuals",
+    x = "Residual (Millions)",
+    y = "Frequency"
+  ) +
+  theme_minimal(base_size = 13)
+```
+
+```{r}
+write_csv(Final_Data,"Offensive_Defensive_Overall_reiduals.csv")
+```
+
