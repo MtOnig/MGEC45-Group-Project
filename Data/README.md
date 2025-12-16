@@ -4,7 +4,7 @@ Unit of observation: Player overall season data
 
 Leagues: Top 5 European leagues (Premier League (England), Bundesliga (Germany), La liga (Spain), Serie A (Italy), Ligue 1 (France))
 
-Seasons covered: 2017–2024
+Seasons covered: 2022–2023
 
 Position focus: Midfielders
 
