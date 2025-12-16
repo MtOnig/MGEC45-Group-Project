@@ -43,8 +43,8 @@ This file constructs the **composite performance score** used to assess whether 
 - Inputs used for Power BI visualizations and comparative analysis  
 
 ---
-
 ## How These Files Fit Into the Project
+
 These RMarkdown files serve as the analytical backbone of the project:
 - Outputs feed directly into the final cleaned dataset
 - Results are summarized in the written report and appendices
