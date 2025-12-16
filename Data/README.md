@@ -80,3 +80,10 @@ Used for:
 This file isolates pure performance deviations from team and contextual effects.
 ---
 
+##  Notes
+
+- Underlying data sourced from FBref and Transfermarkt.
+- Provided for academic and portfolio purposes only.
+- Residuals and scores are model-dependent and intended for relative comparison, not causal inference.
+
+
