@@ -10,7 +10,7 @@ Using R, we built four key regression models:
 - Defensive Contribution Model (xGA/90 with defensive actions + team fixed effects)
 - Offensive Contribution Model (xG/90 with key passes, progressive actions + fixed effects)
 - Overall Impact Model (+/- per 90 as a measure of team performance contribution)
-- Market Value Regression (predicting player valuation using performance + fixed effects)
+- Market Value Regression (predicting player valuation using performance contribution + fixed effects)
 
 We complemented these models with a multi-metric scoring system, percentile rankings, and similarity analysis to benchmark Caicedo against other elite midfielders.
 
@@ -31,3 +31,11 @@ My individual contributions focused specifically on the statistical analysis of 
 - resolving data-cleaning issues such as name mismatches, missing values, and per-90 normalization
 
 This README provides a high-level view of the project. A separate documentation file will be added to explain each component,models, scoring system, datasets, and dashboard in more detail.
+
+##  Main Report
+
+The full written analysis, including methodology, results, discussion, and personal reflection, is available here:
+
+➡️ **[Caicedo Transfer Valuation Report (PDF)](./Final_Report_and_Reflection.pdf)**
+
+This report evaluates whether Moisés Caicedo’s £115M transfer fee aligns with his measurable on-pitch performance using econometric residual analysis, composite scoring methods, and interactive visualizations. It also includes my personal reflection on the process and things I think we could do better going forward.
