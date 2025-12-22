@@ -14,7 +14,7 @@ Using R, we built four key regression models:
 
 We complemented these models with a multi-metric scoring system, percentile rankings, and similarity analysis to benchmark Caicedo against other elite midfielders.
 
-## My Individual Contributions
+## Individual Contributions
 As part of this MGEC45 group project, our team collectively developed the analytical framework used to evaluate Moisés Caicedo’s transfer valuation. Together, we:
 - built the four core regression models (defensive, offensive, overall impact, market value)
 - conducted residual analysis and ranking of ~1,000 midfielders
@@ -32,7 +32,7 @@ My individual contributions focused specifically on the statistical analysis of 
 
 This README provides a high-level view of the project. A separate documentation file will be added to explain each component,models, scoring system, datasets, and dashboard in more detail.
 
-##  Main Report
+##  Personal Report and reflection
 
 The full written analysis, including methodology, results, discussion, and personal reflection, is available here:
 
